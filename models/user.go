@@ -42,9 +42,9 @@ func GetUserByID(id int) (*User, error) {
 	return user, nil
 }
 
-func GetUsers() ([]User, error) {
-	query := `SELECT id, name, email, created_at FROM users`
-	rows, err := config.DB.Query(query)
+func GetUsers(limit, offset int) ([]User, error) {
+	query := `SELECT id, name, email, created_at FROM users ORDER BY id LIMIT $1 OFFSET $2`
+	rows, err := config.DB.Query(query, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("ユーザー一覧の取得に失敗しました: %w", err)
 	}

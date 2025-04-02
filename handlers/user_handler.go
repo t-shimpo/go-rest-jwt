@@ -92,7 +92,17 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 
 // `GET /users`
 func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
-	users, err := models.GetUsers()
+	limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
+	if err != nil || limit <= 0 {
+		limit = 10 // デフォルト値
+	}
+
+	offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
+	if err != nil || offset < 0 {
+		offset = 0 // デフォルト値
+	}
+
+	users, err := models.GetUsers(limit, offset)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "ユーザー取得中にエラーが発生しました")
 		return
