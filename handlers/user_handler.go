@@ -14,11 +14,14 @@ type CreateUserRequest struct {
 	Email string `json:"email"`
 }
 
-// エラーレスポンス
-func respondWithError(w http.ResponseWriter, status int, message string) {
+func respondWithJson(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{"error": message})
+	json.NewEncoder(w).Encode(data)
+}
+
+func respondWithError(w http.ResponseWriter, status int, message string) {
+	respondWithJson(w, status, map[string]string{"error": message})
 }
 
 // `POST /users`
@@ -54,21 +57,17 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 成功レスポンス
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	respondWithJson(w, http.StatusCreated, user)
 }
 
 // `GET /users/{id}`
 func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	// URL から ID を取得
-	segments := strings.Split(r.URL.Path, "/")
-	if len(segments) < 3 {
-		respondWithError(w, http.StatusBadRequest, "無効なURLです")
+	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	if idStr == "" {
+		respondWithError(w, http.StatusBadRequest, "IDが必要です")
 		return
 	}
-	idStr := segments[2]
 
 	// ID を整数に変換
 	id, err := strconv.Atoi(idStr)
@@ -88,8 +87,5 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 成功レスポンス
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
+	respondWithJson(w, http.StatusOK, user)
 }
