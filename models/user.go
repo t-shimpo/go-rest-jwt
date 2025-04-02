@@ -41,3 +41,27 @@ func GetUserByID(id int) (*User, error) {
 
 	return user, nil
 }
+
+func GetUsers() ([]User, error) {
+	query := `SELECT id, name, email, created_at FROM users`
+	rows, err := config.DB.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("ユーザー一覧の取得に失敗しました: %w", err)
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt); err != nil {
+			return nil, fmt.Errorf("ユーザーのデータ取得中にエラーが発生しました: %w", err)
+		}
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("ユーザー一覧の取得中にエラーが発生しました: %w", err)
+	}
+
+	return users, nil
+}

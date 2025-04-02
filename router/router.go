@@ -17,6 +17,8 @@ func SetupRoutes() *http.ServeMux {
 		switch r.Method {
 		case http.MethodPost:
 			handlers.CreateUserHandler(w, r)
+		case http.MethodGet:
+			handlers.GetUsersHandler(w, r)
 		default:
 			methodNotAllowedHandler(w)
 		}

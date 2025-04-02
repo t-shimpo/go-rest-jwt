@@ -89,3 +89,14 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJson(w, http.StatusOK, user)
 }
+
+// `GET /users`
+func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
+	users, err := models.GetUsers()
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "ユーザー取得中にエラーが発生しました")
+		return
+	}
+
+	respondWithJson(w, http.StatusOK, users)
+}
