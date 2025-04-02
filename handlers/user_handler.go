@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/t-shimpo/go-rest-standard-library/models"
@@ -20,7 +21,7 @@ func respondWithError(w http.ResponseWriter, status int, message string) {
 	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
 
-// `POST /users“ の処理
+// `POST /users`
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req CreateUserRequest
@@ -56,5 +57,39 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	// 成功レスポンス
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(user)
+}
+
+// `GET /users/{id}`
+func GetUserHandler(w http.ResponseWriter, r *http.Request) {
+	// URL から ID を取得
+	segments := strings.Split(r.URL.Path, "/")
+	if len(segments) < 3 {
+		respondWithError(w, http.StatusBadRequest, "無効なURLです")
+		return
+	}
+	idStr := segments[2]
+
+	// ID を整数に変換
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "IDは数値である必要があります")
+		return
+	}
+
+	// DB からユーザー取得
+	user, err := models.GetUserByID(id)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			respondWithError(w, http.StatusNotFound, "ユーザーが見つかりません")
+		} else {
+			respondWithError(w, http.StatusInternalServerError, "ユーザー取得中にエラーが発生しました")
+		}
+		return
+	}
+
+	// 成功レスポンス
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(user)
 }

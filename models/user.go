@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -21,6 +22,21 @@ func CreateUser(name, email string) (*User, error) {
 	err := config.DB.QueryRow(query, name, email).Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("ユーザーの作成に失敗しました: %w", err)
+	}
+
+	return user, nil
+}
+
+func GetUserByID(id int) (*User, error) {
+	query := `SELECT id, name, email, created_at FROM users WHERE id = $1`
+	user := &User{}
+
+	err := config.DB.QueryRow(query, id).Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("sql: no rows in result set") // ユーザーが見つからない場合
+		}
+		return nil, fmt.Errorf("ユーザーの取得に失敗しました: %w", err) // その他エラー
 	}
 
 	return user, nil
