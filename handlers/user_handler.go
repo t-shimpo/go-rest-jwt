@@ -24,6 +24,27 @@ func respondWithError(w http.ResponseWriter, status int, message string) {
 	respondWithJson(w, status, map[string]string{"error": message})
 }
 
+// `GET /users`
+func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
+	limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
+	if err != nil || limit <= 0 {
+		limit = 10 // デフォルト値
+	}
+
+	offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
+	if err != nil || offset < 0 {
+		offset = 0 // デフォルト値
+	}
+
+	users, err := models.GetUsers(limit, offset)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "ユーザー取得中にエラーが発生しました")
+		return
+	}
+
+	respondWithJson(w, http.StatusOK, users)
+}
+
 // `POST /users`
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -88,25 +109,4 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJson(w, http.StatusOK, user)
-}
-
-// `GET /users`
-func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
-	limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
-	if err != nil || limit <= 0 {
-		limit = 10 // デフォルト値
-	}
-
-	offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
-	if err != nil || offset < 0 {
-		offset = 0 // デフォルト値
-	}
-
-	users, err := models.GetUsers(limit, offset)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "ユーザー取得中にエラーが発生しました")
-		return
-	}
-
-	respondWithJson(w, http.StatusOK, users)
 }
