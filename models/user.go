@@ -15,6 +15,30 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+func GetUsers(limit, offset int) ([]User, error) {
+	query := `SELECT id, name, email, created_at FROM users ORDER BY id LIMIT $1 OFFSET $2`
+	rows, err := config.DB.Query(query, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("ユーザー一覧の取得に失敗しました: %w", err)
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt); err != nil {
+			return nil, fmt.Errorf("ユーザーのデータ取得中にエラーが発生しました: %w", err)
+		}
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("ユーザー一覧の取得中にエラーが発生しました: %w", err)
+	}
+
+	return users, nil
+}
+
 func CreateUser(name, email string) (*User, error) {
 	query := `INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id, name, email, created_at`
 	user := &User{}
@@ -40,28 +64,4 @@ func GetUserByID(id int) (*User, error) {
 	}
 
 	return user, nil
-}
-
-func GetUsers(limit, offset int) ([]User, error) {
-	query := `SELECT id, name, email, created_at FROM users ORDER BY id LIMIT $1 OFFSET $2`
-	rows, err := config.DB.Query(query, limit, offset)
-	if err != nil {
-		return nil, fmt.Errorf("ユーザー一覧の取得に失敗しました: %w", err)
-	}
-	defer rows.Close()
-
-	var users []User
-	for rows.Next() {
-		var user User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt); err != nil {
-			return nil, fmt.Errorf("ユーザーのデータ取得中にエラーが発生しました: %w", err)
-		}
-		users = append(users, user)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("ユーザー一覧の取得中にエラーが発生しました: %w", err)
-	}
-
-	return users, nil
 }
