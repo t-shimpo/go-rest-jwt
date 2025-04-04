@@ -14,6 +14,11 @@ type CreateUserRequest struct {
 	Email string `json:"email"`
 }
 
+type UpdateUserRequest struct {
+	Name  *string `json:"name,omitempty"`
+	Email *string `json:"email,omitempty"`
+}
+
 func respondWithJson(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -104,6 +109,48 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 			respondWithError(w, http.StatusNotFound, "ユーザーが見つかりません")
 		} else {
 			respondWithError(w, http.StatusInternalServerError, "ユーザー取得中にエラーが発生しました")
+		}
+		return
+	}
+
+	respondWithJson(w, http.StatusOK, user)
+}
+
+// `PATCH /users/{id}“
+func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
+	// URL から ID を取得
+	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	if idStr == "" {
+		respondWithError(w, http.StatusBadRequest, "IDが必要です")
+		return
+	}
+
+	// ID を整数に変換
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "IDは数値である必要があります")
+		return
+	}
+
+	var req UpdateUserRequest
+	defer r.Body.Close()
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondWithError(w, http.StatusBadRequest, "無効なリクエストボディ")
+		return
+	}
+
+	if req.Name == nil && req.Email == nil {
+		respondWithError(w, http.StatusBadRequest, "更新するフィールドを指定してください")
+		return
+	}
+
+	user, err := models.UpdateUser(id, req.Name, req.Email)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			respondWithError(w, http.StatusNotFound, "ユーザーが見つかりません")
+		} else {
+			respondWithError(w, http.StatusInternalServerError, "ユーザー更新中にエラーが発生しました")
 		}
 		return
 	}

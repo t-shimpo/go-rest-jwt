@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/t-shimpo/go-rest-standard-library/config"
@@ -61,6 +62,46 @@ func GetUserByID(id int) (*User, error) {
 			return nil, fmt.Errorf("sql: no rows in result set") // ユーザーが見つからない場合
 		}
 		return nil, fmt.Errorf("ユーザーの取得に失敗しました: %w", err) // その他エラー
+	}
+
+	return user, nil
+}
+
+func UpdateUser(id int, name, email *string) (*User, error) {
+	updates := map[string]interface{}{}
+
+	if name != nil {
+		updates["name"] = *name
+	}
+
+	if email != nil {
+		updates["email"] = *email
+	}
+
+	// SET句を動的に構築
+	setClauses := []string{}
+	args := []interface{}{}
+	argIndex := 1
+
+	for column, value := range updates {
+		setClauses = append(setClauses, fmt.Sprintf("%s = $%d", column, argIndex))
+		args = append(args, value)
+		argIndex++
+	}
+
+	query := fmt.Sprintf(
+		"UPDATE users SET %s WHERE id = $%d RETURNING id, name, email, created_at",
+		strings.Join(setClauses, ", "), argIndex,
+	)
+	args = append(args, id)
+
+	user := &User{}
+	err := config.DB.QueryRow(query, args...).Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("sql: no rows in result set")
+		}
+		return nil, fmt.Errorf("ユーザーの更新に失敗しました: %w", err)
 	}
 
 	return user, nil
