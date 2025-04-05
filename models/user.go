@@ -106,3 +106,20 @@ func UpdateUser(id int, name, email *string) (*User, error) {
 
 	return user, nil
 }
+
+func DeleteUser(id int) error {
+	result, err := config.DB.Exec("DELETE FROM users WHERE id = $1", id)
+	if err != nil {
+		return fmt.Errorf("削除に失敗しました: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("削除結果の確認に失敗しました: %w", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("sql: no rows in result set")
+	}
+
+	return nil
+}

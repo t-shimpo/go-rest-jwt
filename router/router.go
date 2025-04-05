@@ -30,6 +30,8 @@ func SetupRoutes() *http.ServeMux {
 			handlers.GetUserHandler(w, r)
 		case http.MethodPatch:
 			handlers.UpdateUserHandler(w, r)
+		case http.MethodDelete:
+			handlers.DeleteUserHandler(w, r)
 		default:
 			methodNotAllowedHandler(w)
 		}

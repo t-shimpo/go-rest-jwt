@@ -157,3 +157,32 @@ func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJson(w, http.StatusOK, user)
 }
+
+// `DELETE /users/{id}`
+func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
+	// URL から ID を取得
+	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	if idStr == "" {
+		respondWithError(w, http.StatusBadRequest, "IDが必要です")
+		return
+	}
+
+	// ID を整数に変換
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "IDは数値である必要があります")
+		return
+	}
+
+	err = models.DeleteUser(id)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			respondWithError(w, http.StatusNotFound, "ユーザーが見つかりません")
+		} else {
+			respondWithError(w, http.StatusInternalServerError, "ユーザー削除中にエラーが発生しました")
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
