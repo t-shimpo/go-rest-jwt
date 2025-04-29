@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/t-shimpo/go-rest-standard-library/config"
+	"github.com/t-shimpo/go-rest-standard-library-layered/config"
 )
 
 type User struct {

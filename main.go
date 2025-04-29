@@ -5,8 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/t-shimpo/go-rest-standard-library/config"
-	"github.com/t-shimpo/go-rest-standard-library/router"
+	"github.com/t-shimpo/go-rest-standard-library-layered/config"
+
+	"github.com/t-shimpo/go-rest-standard-library-layered/router"
 )
 
 func main() {

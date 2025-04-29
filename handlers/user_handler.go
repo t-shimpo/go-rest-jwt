@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/t-shimpo/go-rest-standard-library/models"
+	"github.com/t-shimpo/go-rest-standard-library-layered/models"
 )
 
 type CreateUserRequest struct {

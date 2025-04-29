@@ -3,7 +3,7 @@ package router
 import (
 	"net/http"
 
-	"github.com/t-shimpo/go-rest-standard-library/handlers"
+	"github.com/t-shimpo/go-rest-standard-library-layered/handlers"
 )
 
 func methodNotAllowedHandler(w http.ResponseWriter) {
