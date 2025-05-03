@@ -8,10 +8,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// エラーを防ぐため一時的に残す
-// 全ての処理をレイヤー分離すれば不要
-var DB *sql.DB
-
 func InitDB() (*sql.DB, error) {
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
