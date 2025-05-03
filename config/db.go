@@ -8,33 +8,33 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// エラーを防ぐため一時的に残す
+// 全ての処理をレイヤー分離すれば不要
 var DB *sql.DB
 
-func InitDB() error {
+func InitDB() (*sql.DB, error) {
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		return fmt.Errorf("データベースURLが設定されていません")
+		return nil, fmt.Errorf("データベースURLが設定されていません")
 	}
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
-		return fmt.Errorf("データベース接続に失敗しました: %w", err)
+		return nil, fmt.Errorf("データベース接続に失敗しました: %w", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		return fmt.Errorf("データベースの接続確認に失敗しました: %w", err)
+		return nil, fmt.Errorf("データベースの接続確認に失敗しました: %w", err)
 	}
 
-	DB = db
-
-	if err := applyMigrations(); err != nil {
-		return fmt.Errorf("マイグレーション適用に失敗しました: %w", err)
+	if err := applyMigrations(db); err != nil {
+		return nil, fmt.Errorf("マイグレーション適用に失敗しました: %w", err)
 	}
 
-	return nil
+	return db, nil
 }
 
-func applyMigrations() error {
+func applyMigrations(db *sql.DB) error {
 	createUsersTables := `
 	CREATE TABLE IF NOT EXISTS users (
 		id SERIAL PRIMARY KEY,
@@ -43,7 +43,7 @@ func applyMigrations() error {
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);`
 
-	_, err := DB.Exec(createUsersTables)
+	_, err := db.Exec(createUsersTables)
 	if err != nil {
 		return err
 	}

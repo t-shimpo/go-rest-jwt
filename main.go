@@ -6,30 +6,27 @@ import (
 	"net/http"
 
 	"github.com/t-shimpo/go-rest-standard-library-layered/config"
+	"github.com/t-shimpo/go-rest-standard-library-layered/handlers"
+	"github.com/t-shimpo/go-rest-standard-library-layered/repository"
+	"github.com/t-shimpo/go-rest-standard-library-layered/service"
 
 	"github.com/t-shimpo/go-rest-standard-library-layered/router"
 )
 
 func main() {
 	// DB 初期化
-	err := config.InitDB()
+	db, err := config.InitDB()
 	if err != nil {
 		fmt.Println("DB初期化エラー:", err)
 		return
 	}
+	defer db.Close()
 
-	if config.DB != nil {
-		defer func() {
-			if err := config.DB.Close(); err != nil {
-				fmt.Println("DBクローズエラー:", err)
-			}
-		}()
-	}
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := handlers.NewUserHandler(userService)
+	mux := router.SetupRoutes(userHandler)
 
-	// ルーティング設定
-	mux := router.SetupRoutes()
-
-	// サーバー起動
 	fmt.Println("サーバーが 8080 ポートで起動中")
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }

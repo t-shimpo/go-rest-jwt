@@ -7,16 +7,31 @@ import (
 	"strings"
 
 	"github.com/t-shimpo/go-rest-standard-library-layered/models"
+	"github.com/t-shimpo/go-rest-standard-library-layered/service"
 )
 
-type CreateUserRequest struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+type UserHandler struct {
+	userService *service.UserService
 }
 
-type UpdateUserRequest struct {
-	Name  *string `json:"name,omitempty"`
-	Email *string `json:"email,omitempty"`
+func NewUserHandler(userService *service.UserService) *UserHandler {
+	return &UserHandler{userService: userService}
+}
+
+func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	var user models.User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		respondWithError(w, http.StatusBadRequest, "無効なリクエストボディ")
+		return
+	}
+
+	createdUser, err := h.userService.CreateUser(&user)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "ユーザー作成に失敗しました")
+		return
+	}
+
+	respondWithJson(w, http.StatusCreated, createdUser)
 }
 
 func respondWithJson(w http.ResponseWriter, status int, data interface{}) {
@@ -27,6 +42,16 @@ func respondWithJson(w http.ResponseWriter, status int, data interface{}) {
 
 func respondWithError(w http.ResponseWriter, status int, message string) {
 	respondWithJson(w, status, map[string]string{"error": message})
+}
+
+type CreateUserRequest struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+type UpdateUserRequest struct {
+	Name  *string `json:"name,omitempty"`
+	Email *string `json:"email,omitempty"`
 }
 
 // `GET /users`

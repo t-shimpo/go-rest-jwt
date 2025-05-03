@@ -10,13 +10,13 @@ func methodNotAllowedHandler(w http.ResponseWriter) {
 	http.Error(w, "許可されていないメソッドです", http.StatusMethodNotAllowed)
 }
 
-func SetupRoutes() *http.ServeMux {
+func SetupRoutes(userHandler *handlers.UserHandler) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			handlers.CreateUserHandler(w, r)
+			userHandler.CreateUser(w, r)
 		case http.MethodGet:
 			handlers.GetUsersHandler(w, r)
 		default:

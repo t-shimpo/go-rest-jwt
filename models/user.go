@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -14,6 +15,16 @@ type User struct {
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+func (u *User) Validate() error {
+	if u.Name == "" {
+		return errors.New("name is required")
+	}
+	if u.Email == "" {
+		return errors.New("email is required")
+	}
+	return nil
 }
 
 func GetUsers(limit, offset int) ([]User, error) {
