@@ -31,3 +31,7 @@ func (s *UserService) GetUsers(limit, offset int) ([]*models.User, error) {
 func (s *UserService) PatchUser(id int64, name, email *string) (*models.User, error) {
 	return s.repo.PatchUser(id, name, email)
 }
+
+func (s *UserService) DeleteUser(id int64) error {
+	return s.repo.DeleteUser(id)
+}

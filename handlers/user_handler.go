@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -35,7 +37,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
-	// URLパスからIDを取得(例: /users/123)
+	// URLパスからIDを取得
 	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
 	if idStr == "" {
 		respondWithError(w, http.StatusBadRequest, "IDは必要です")
@@ -82,7 +84,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
-	// URLパスからIDを取得(例: /users/123)
+	// URLパスからIDを取得
 	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
 	if idStr == "" {
 		respondWithError(w, http.StatusBadRequest, "IDは必要です")
@@ -121,6 +123,33 @@ func (h *UserHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJson(w, http.StatusOK, updatedUser)
+}
+
+func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	// URLパスからIDを取得
+	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	if idStr == "" {
+		respondWithError(w, http.StatusBadRequest, "IDは必要です")
+		return
+	}
+
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "IDは数値である必要があります")
+		return
+	}
+
+	err = h.userService.DeleteUser(id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			respondWithError(w, http.StatusNotFound, "ユーザーが見つかりません")
+		} else {
+			respondWithError(w, http.StatusInternalServerError, "ユーザー削除中にエラーが発生しました")
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func respondWithJson(w http.ResponseWriter, status int, data interface{}) {

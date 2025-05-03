@@ -11,6 +11,7 @@ type UserRepository interface {
 	GetUserByID(id int64) (*models.User, error)
 	GetUsers(limit, offset int) ([]*models.User, error)
 	PatchUser(id int64, name, email *string) (*models.User, error)
+	DeleteUser(id int64) error
 }
 
 type userRepository struct {
@@ -92,4 +93,21 @@ func (r *userRepository) PatchUser(id int64, name, email *string) (*models.User,
 	}
 
 	return &user, nil
+}
+
+func (r *userRepository) DeleteUser(id int64) error {
+	result, err := r.db.Exec("DELETE FROM users WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
 }
