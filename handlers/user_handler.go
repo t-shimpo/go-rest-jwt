@@ -51,9 +51,11 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	user, err := h.userService.GetUserByID(id)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "ユーザー取得時にエラーが発生しました")
+		return
 	}
 	if user == nil {
 		respondWithError(w, http.StatusNotFound, "ユーザーが見つかりません")
+		return
 	}
 
 	respondWithJson(w, http.StatusOK, user)
@@ -73,6 +75,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.userService.GetUsers(limit, offset)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "ユーザー一覧の取得に失敗しました")
+		return
 	}
 
 	respondWithJson(w, http.StatusOK, users)
