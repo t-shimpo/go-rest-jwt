@@ -52,7 +52,7 @@ func (r *userRepository) GetUsers(limit, offset int) ([]*models.User, error) {
 		return nil, err
 	}
 
-	var users []*models.User
+	users := make([]*models.User, 0)
 	for rows.Next() {
 		var user models.User
 		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt); err != nil {
@@ -66,7 +66,7 @@ func (r *userRepository) GetUsers(limit, offset int) ([]*models.User, error) {
 
 func (r *userRepository) PatchUser(id int64, name, email *string) (*models.User, error) {
 	// 既存データを取得
-	query := `SELECT id, name, email, createdAt FROM users WHERE id = $1`
+	query := `SELECT id, name, email, created_at FROM users WHERE id = $1`
 	var user models.User
 	err := r.db.QueryRow(query, id).Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
 	if err != nil {
