@@ -59,6 +59,25 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	respondWithJson(w, http.StatusOK, user)
 }
 
+func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
+	if err != nil || limit <= 0 {
+		limit = 10 // デフォルト値
+	}
+
+	offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
+	if err != nil || offset < 0 {
+		offset = 0 // デフォルト値
+	}
+
+	users, err := h.userService.GetUsers(limit, offset)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "ユーザー一覧の取得に失敗しました")
+	}
+
+	respondWithJson(w, http.StatusOK, users)
+}
+
 func respondWithJson(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

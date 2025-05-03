@@ -23,3 +23,7 @@ func (s *UserService) CreateUser(user *models.User) (*models.User, error) {
 func (s *UserService) GetUserByID(id int64) (*models.User, error) {
 	return s.repo.GetUserByID(id)
 }
+
+func (s *UserService) GetUsers(limit, offset int) ([]*models.User, error) {
+	return s.repo.GetUsers(limit, offset)
+}
