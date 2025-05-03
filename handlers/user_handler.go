@@ -117,7 +117,7 @@ func (h *UserHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, "ユーザー更新中にエラーが発生しました")
 		return
 	}
-	if updatedUser != nil {
+	if updatedUser == nil {
 		respondWithError(w, http.StatusNotFound, "ユーザーが見つかりません")
 		return
 	}

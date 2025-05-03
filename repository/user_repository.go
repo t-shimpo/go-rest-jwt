@@ -82,9 +82,9 @@ func (r *userRepository) PatchUser(id int64, name, email *string) (*models.User,
 	}
 
 	// 更新クエリ
-	query = `UPDATE users SET name = $1, email = $2 WHERE id = $3`
+	query = `UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING id, name, email, created_at`
 	err = r.db.QueryRow(query, user.Name, user.Email, id).
-		Scan(user.ID, &user.Name, &user.Email, &user.CreatedAt)
+		Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // 呼び出し元で 404 として扱う
