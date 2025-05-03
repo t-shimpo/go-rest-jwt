@@ -29,8 +29,13 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	createdUser, err := h.userService.CreateUser(&user)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "ユーザー作成に失敗しました")
-		return
+		if err == service.ErrValidation {
+			respondWithError(w, http.StatusBadRequest, "nameとemailは必須です")
+			return
+		} else {
+			respondWithError(w, http.StatusInternalServerError, "ユーザー作成に失敗しました")
+			return
+		}
 	}
 
 	respondWithJson(w, http.StatusCreated, createdUser)

@@ -1,9 +1,13 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/t-shimpo/go-rest-standard-library-layered/models"
 	"github.com/t-shimpo/go-rest-standard-library-layered/repository"
 )
+
+var ErrValidation = errors.New("validation error")
 
 type UserService struct {
 	repo repository.UserRepository
@@ -15,7 +19,7 @@ func NewUserService(repo repository.UserRepository) *UserService {
 
 func (s *UserService) CreateUser(user *models.User) (*models.User, error) {
 	if err := user.Validate(); err != nil {
-		return nil, err
+		return nil, ErrValidation
 	}
 	return s.repo.CreateUser(user)
 }
