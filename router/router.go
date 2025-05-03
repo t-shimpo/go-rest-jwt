@@ -27,7 +27,7 @@ func SetupRoutes(userHandler *handlers.UserHandler) *http.ServeMux {
 	mux.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			handlers.GetUserHandler(w, r)
+			userHandler.GetUserByID(w, r)
 		case http.MethodPatch:
 			handlers.UpdateUserHandler(w, r)
 		case http.MethodDelete:

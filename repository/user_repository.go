@@ -8,6 +8,7 @@ import (
 
 type UserRepository interface {
 	CreateUser(user *models.User) (*models.User, error)
+	GetUserByID(id int64) (*models.User, error)
 }
 
 type userRepository struct {
@@ -25,4 +26,18 @@ func (r *userRepository) CreateUser(user *models.User) (*models.User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (r *userRepository) GetUserByID(id int64) (*models.User, error) {
+	query := `SELECT id, name, email, created_at FROM users where id = $1`
+	var user models.User
+
+	err := r.db.QueryRow(query, id).Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // 呼び出し元で 404 として扱う
+		}
+		return nil, err
+	}
+	return &user, nil
 }

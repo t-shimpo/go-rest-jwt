@@ -19,3 +19,7 @@ func (s *UserService) CreateUser(user *models.User) (*models.User, error) {
 	}
 	return s.repo.CreateUser(user)
 }
+
+func (s *UserService) GetUserByID(id int64) (*models.User, error) {
+	return s.repo.GetUserByID(id)
+}

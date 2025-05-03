@@ -34,6 +34,31 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJson(w, http.StatusCreated, createdUser)
 }
 
+func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	// URLパスからIDを取得(例: /users/123)
+	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	if idStr == "" {
+		respondWithError(w, http.StatusBadRequest, "IDは必要です")
+		return
+	}
+
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "IDは数値である必要があります")
+		return
+	}
+
+	user, err := h.userService.GetUserByID(id)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "ユーザー取得時にエラーが発生しました")
+	}
+	if user == nil {
+		respondWithError(w, http.StatusNotFound, "ユーザーが見つかりません")
+	}
+
+	respondWithJson(w, http.StatusOK, user)
+}
+
 func respondWithJson(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
