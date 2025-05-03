@@ -27,3 +27,7 @@ func (s *UserService) GetUserByID(id int64) (*models.User, error) {
 func (s *UserService) GetUsers(limit, offset int) ([]*models.User, error) {
 	return s.repo.GetUsers(limit, offset)
 }
+
+func (s *UserService) PatchUser(id int64, name, email *string) (*models.User, error) {
+	return s.repo.PatchUser(id, name, email)
+}

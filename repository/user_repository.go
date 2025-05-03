@@ -10,6 +10,7 @@ type UserRepository interface {
 	CreateUser(user *models.User) (*models.User, error)
 	GetUserByID(id int64) (*models.User, error)
 	GetUsers(limit, offset int) ([]*models.User, error)
+	PatchUser(id int64, name, email *string) (*models.User, error)
 }
 
 type userRepository struct {
@@ -60,4 +61,35 @@ func (r *userRepository) GetUsers(limit, offset int) ([]*models.User, error) {
 	}
 
 	return users, nil
+}
+
+func (r *userRepository) PatchUser(id int64, name, email *string) (*models.User, error) {
+	// 既存データを取得
+	query := `SELECT id, name, email, createdAt FROM users WHERE id = $1`
+	var user models.User
+	err := r.db.QueryRow(query, id).Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	// 更新内容を反映
+	if name != nil {
+		user.Name = *name
+	}
+	if email != nil {
+		user.Email = *email
+	}
+
+	// 更新クエリ
+	query = `UPDATE users SET name = $1, email = $2 WHERE id = $3`
+	err = r.db.QueryRow(query, user.Name, user.Email, id).
+		Scan(user.ID, &user.Name, &user.Email, &user.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // 呼び出し元で 404 として扱う
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }

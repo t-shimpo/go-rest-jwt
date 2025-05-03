@@ -81,6 +81,48 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	respondWithJson(w, http.StatusOK, users)
 }
 
+func (h *UserHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
+	// URLパスからIDを取得(例: /users/123)
+	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	if idStr == "" {
+		respondWithError(w, http.StatusBadRequest, "IDは必要です")
+		return
+	}
+
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "IDは数値である必要があります")
+		return
+	}
+
+	// リクエストボディのパース
+	var req struct {
+		Name  *string `json:"name"`
+		Email *string `json:"email"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondWithError(w, http.StatusBadRequest, "リクエストボディが無効です")
+		return
+	}
+
+	if req.Name == nil && req.Email == nil {
+		respondWithError(w, http.StatusBadRequest, "更新するフィールドを指定してください")
+		return
+	}
+
+	updatedUser, err := h.userService.PatchUser(id, req.Name, req.Email)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "ユーザー更新中にエラーが発生しました")
+		return
+	}
+	if updatedUser != nil {
+		respondWithError(w, http.StatusNotFound, "ユーザーが見つかりません")
+		return
+	}
+
+	respondWithJson(w, http.StatusOK, updatedUser)
+}
+
 func respondWithJson(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

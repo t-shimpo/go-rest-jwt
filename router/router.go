@@ -29,7 +29,7 @@ func SetupRoutes(userHandler *handlers.UserHandler) *http.ServeMux {
 		case http.MethodGet:
 			userHandler.GetUserByID(w, r)
 		case http.MethodPatch:
-			handlers.UpdateUserHandler(w, r)
+			userHandler.PatchUser(w, r)
 		case http.MethodDelete:
 			handlers.DeleteUserHandler(w, r)
 		default:
