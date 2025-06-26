@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 
-	"github.com/t-shimpo/go-rest-standard-library-layered/models"
-	"github.com/t-shimpo/go-rest-standard-library-layered/repository"
+	"github.com/t-shimpo/go-rest-jwt/models"
+	"github.com/t-shimpo/go-rest-jwt/repository"
 )
 
 var ErrValidation = errors.New("validation error")

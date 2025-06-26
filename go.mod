@@ -1,4 +1,4 @@
-module github.com/t-shimpo/go-rest-standard-library-layered
+module github.com/t-shimpo/go-rest-jwt
 
 go 1.24.0
 

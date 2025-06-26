@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 
-	"github.com/t-shimpo/go-rest-standard-library-layered/models"
+	"github.com/t-shimpo/go-rest-jwt/models"
 )
 
 type UserRepository interface {

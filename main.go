@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/t-shimpo/go-rest-standard-library-layered/config"
-	"github.com/t-shimpo/go-rest-standard-library-layered/handlers"
-	"github.com/t-shimpo/go-rest-standard-library-layered/repository"
-	"github.com/t-shimpo/go-rest-standard-library-layered/service"
+	"github.com/t-shimpo/go-rest-jwt/config"
+	"github.com/t-shimpo/go-rest-jwt/handlers"
+	"github.com/t-shimpo/go-rest-jwt/repository"
+	"github.com/t-shimpo/go-rest-jwt/service"
 
-	"github.com/t-shimpo/go-rest-standard-library-layered/router"
+	"github.com/t-shimpo/go-rest-jwt/router"
 )
 
 func main() {
