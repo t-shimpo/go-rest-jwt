@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/t-shimpo/go-rest-jwt/models"
 )
@@ -23,9 +24,10 @@ func NewUserRepository(db *sql.DB) UserRepository {
 }
 
 func (r *userRepository) CreateUser(user *models.User) (*models.User, error) {
-	query := `INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id, created_at`
-	err := r.db.QueryRow(query, user.Name, user.Email).Scan(&user.ID, &user.CreatedAt)
+	query := `INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, created_at`
+	err := r.db.QueryRow(query, user.Name, user.Email, user.PasswordHash).Scan(&user.ID, &user.CreatedAt)
 	if err != nil {
+		fmt.Println("Error creating user:", err)
 		return nil, err
 	}
 	return user, nil

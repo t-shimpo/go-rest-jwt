@@ -5,6 +5,7 @@ import (
 
 	"github.com/t-shimpo/go-rest-jwt/models"
 	"github.com/t-shimpo/go-rest-jwt/repository"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var ErrValidation = errors.New("validation error")
@@ -17,11 +18,27 @@ func NewUserService(repo repository.UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (s *UserService) CreateUser(user *models.User) (*models.User, error) {
+func (s *UserService) CreateUser(user *models.User, password string) (*models.User, error) {
 	if err := user.Validate(); err != nil {
 		return nil, ErrValidation
 	}
+	if password == "" {
+		return nil, ErrValidation
+	}
+
+	hashedPassword, err := hashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+
+	user.PasswordHash = hashedPassword
+
 	return s.repo.CreateUser(user)
+}
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytes), err
 }
 
 func (s *UserService) GetUserByID(id int64) (*models.User, error) {

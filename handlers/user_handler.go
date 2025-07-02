@@ -21,16 +21,21 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user models.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	var req models.CreateUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondWithError(w, http.StatusBadRequest, "無効なリクエストボディ")
 		return
 	}
 
-	createdUser, err := h.userService.CreateUser(&user)
+	user := models.User{
+		Name:  req.Name,
+		Email: req.Email,
+	}
+
+	createdUser, err := h.userService.CreateUser(&user, req.Password)
 	if err != nil {
 		if err == service.ErrValidation {
-			respondWithError(w, http.StatusBadRequest, "nameとemailは必須です")
+			respondWithError(w, http.StatusBadRequest, "入力値が不正です")
 			return
 		} else {
 			respondWithError(w, http.StatusInternalServerError, "ユーザー作成に失敗しました")
