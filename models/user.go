@@ -19,6 +19,11 @@ type CreateUserRequest struct {
 	Password string `json:"password"`
 }
 
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func (u *User) Validate() error {
 	if u.Name == "" {
 		return errors.New("name is required")

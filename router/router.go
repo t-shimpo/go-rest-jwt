@@ -37,5 +37,14 @@ func SetupRoutes(userHandler *handlers.UserHandler) *http.ServeMux {
 		}
 	})
 
+	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			userHandler.Login(w, r)
+		default:
+			methodNotAllowedHandler(w)
+		}
+	})
+
 	return mux
 }

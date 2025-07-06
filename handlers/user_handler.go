@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/t-shimpo/go-rest-jwt/auth"
 	"github.com/t-shimpo/go-rest-jwt/models"
 	"github.com/t-shimpo/go-rest-jwt/service"
 )
@@ -160,6 +161,34 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var req models.LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondWithError(w, http.StatusBadRequest, "無効なリクエストボディ")
+		return
+	}
+
+	user, err := h.userService.Authenticate(req.Email, req.Password)
+	if err != nil {
+		if err == service.ErrorNotFound || err == service.ErrorInvalidPassword {
+			respondWithError(w, http.StatusUnauthorized, "認証に失敗しました")
+			return
+		}
+		respondWithError(w, http.StatusInternalServerError, "ログイン処理に失敗しました")
+		return
+	}
+
+	token, err := auth.GenerateToken(int64(user.ID))
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "トークン生成に失敗しました")
+		return
+	}
+
+	respondWithJson(w, http.StatusOK, map[string]string{
+		"token": token,
+	})
 }
 
 func respondWithJson(w http.ResponseWriter, status int, data interface{}) {

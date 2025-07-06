@@ -8,7 +8,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var ErrValidation = errors.New("validation error")
+var (
+	ErrValidation        = errors.New("validation error")
+	ErrorNotFound        = errors.New("not found")
+	ErrorInvalidPassword = errors.New("invalid password")
+)
 
 type UserService struct {
 	repo repository.UserRepository
@@ -55,4 +59,16 @@ func (s *UserService) PatchUser(id int64, name, email *string) (*models.User, er
 
 func (s *UserService) DeleteUser(id int64) error {
 	return s.repo.DeleteUser(id)
+}
+
+func (s *UserService) Authenticate(email, password string) (*models.User, error) {
+	user, err := s.repo.GetUserByEmail(email)
+	if err != nil {
+		return nil, ErrorNotFound
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		return nil, ErrorInvalidPassword
+	}
+	return user, nil
 }

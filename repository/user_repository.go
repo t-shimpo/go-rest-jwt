@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	CreateUser(user *models.User) (*models.User, error)
 	GetUserByID(id int64) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
 	GetUsers(limit, offset int) ([]*models.User, error)
 	PatchUser(id int64, name, email *string) (*models.User, error)
 	DeleteUser(id int64) error
@@ -42,6 +43,17 @@ func (r *userRepository) GetUserByID(id int64) (*models.User, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil // 呼び出し元で 404 として扱う
 		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepository) GetUserByEmail(Email string) (*models.User, error) {
+	query := `SELECT id, name, email, password_hash, created_at FROM users WHERE email = $1`
+	var user models.User
+
+	err := r.db.QueryRow(query, Email).Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.CreatedAt)
+	if err != nil {
 		return nil, err
 	}
 	return &user, nil
