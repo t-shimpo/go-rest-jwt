@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/joho/godotenv"
 	"github.com/t-shimpo/go-rest-jwt/config"
 	"github.com/t-shimpo/go-rest-jwt/handlers"
 	"github.com/t-shimpo/go-rest-jwt/repository"
@@ -12,6 +13,12 @@ import (
 
 	"github.com/t-shimpo/go-rest-jwt/router"
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("環境変数の読み込みに失敗しました:", err)
+	}
+}
 
 func main() {
 	// DB 初期化
