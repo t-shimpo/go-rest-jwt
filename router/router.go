@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	"github.com/t-shimpo/go-rest-jwt/auth"
 	"github.com/t-shimpo/go-rest-jwt/handlers"
 )
 
@@ -24,7 +25,7 @@ func SetupRoutes(userHandler *handlers.UserHandler) *http.ServeMux {
 		}
 	})
 
-	mux.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
+	protectedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			userHandler.GetUserByID(w, r)
@@ -36,6 +37,8 @@ func SetupRoutes(userHandler *handlers.UserHandler) *http.ServeMux {
 			methodNotAllowedHandler(w)
 		}
 	})
+
+	mux.Handle("/users/", auth.JTWMiddleware(protectedHandler))
 
 	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
