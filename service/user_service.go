@@ -45,7 +45,7 @@ func hashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-func (s *UserService) GetUserByID(id int64) (*models.User, error) {
+func (s *UserService) GetUserByID(id int) (*models.User, error) {
 	return s.repo.GetUserByID(id)
 }
 
@@ -53,11 +53,11 @@ func (s *UserService) GetUsers(limit, offset int) ([]*models.User, error) {
 	return s.repo.GetUsers(limit, offset)
 }
 
-func (s *UserService) PatchUser(id int64, name, email *string) (*models.User, error) {
+func (s *UserService) PatchUser(id int, name, email *string) (*models.User, error) {
 	return s.repo.PatchUser(id, name, email)
 }
 
-func (s *UserService) DeleteUser(id int64) error {
+func (s *UserService) DeleteUser(id int) error {
 	return s.repo.DeleteUser(id)
 }
 

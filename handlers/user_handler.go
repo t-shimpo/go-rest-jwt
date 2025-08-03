@@ -55,7 +55,7 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "IDは数値である必要があります")
 		return
@@ -102,7 +102,7 @@ func (h *UserHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "IDは数値である必要があります")
 		return
@@ -144,7 +144,7 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "IDは数値である必要があります")
 		return

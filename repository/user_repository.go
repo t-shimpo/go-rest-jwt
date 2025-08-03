@@ -9,11 +9,11 @@ import (
 
 type UserRepository interface {
 	CreateUser(user *models.User) (*models.User, error)
-	GetUserByID(id int64) (*models.User, error)
+	GetUserByID(id int) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
 	GetUsers(limit, offset int) ([]*models.User, error)
-	PatchUser(id int64, name, email *string) (*models.User, error)
-	DeleteUser(id int64) error
+	PatchUser(id int, name, email *string) (*models.User, error)
+	DeleteUser(id int) error
 }
 
 type userRepository struct {
@@ -34,7 +34,7 @@ func (r *userRepository) CreateUser(user *models.User) (*models.User, error) {
 	return user, nil
 }
 
-func (r *userRepository) GetUserByID(id int64) (*models.User, error) {
+func (r *userRepository) GetUserByID(id int) (*models.User, error) {
 	query := `SELECT id, name, email, created_at FROM users where id = $1`
 	var user models.User
 
@@ -78,7 +78,7 @@ func (r *userRepository) GetUsers(limit, offset int) ([]*models.User, error) {
 	return users, nil
 }
 
-func (r *userRepository) PatchUser(id int64, name, email *string) (*models.User, error) {
+func (r *userRepository) PatchUser(id int, name, email *string) (*models.User, error) {
 	// 既存データを取得
 	query := `SELECT id, name, email, created_at FROM users WHERE id = $1`
 	var user models.User
@@ -109,7 +109,7 @@ func (r *userRepository) PatchUser(id int64, name, email *string) (*models.User,
 	return &user, nil
 }
 
-func (r *userRepository) DeleteUser(id int64) error {
+func (r *userRepository) DeleteUser(id int) error {
 	result, err := r.db.Exec("DELETE FROM users WHERE id = $1", id)
 	if err != nil {
 		return err
